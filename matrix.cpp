@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 class Matrix;
 Matrix operator*(Matrix m1, Matrix m2);
@@ -32,6 +33,7 @@ class Matrix{
                     std::cin >> coefficients[i][j];
                 }
             }
+            std::cout << "\n";
         }
         // operators
         void operator+=(Matrix m2){
@@ -44,6 +46,40 @@ class Matrix{
         Matrix& operator*=(const Matrix& m2) {
                 *this = *this * m2;
                 return *this;
+        }
+        void operator*=(double lambda){
+            for (int i = 0; i < size; i++){
+                for (int j = 0; j < size; j++){
+                    coefficients[i][j] *= lambda;
+                }
+            }
+        }
+        // Determinant
+        double determinant(){
+            if (size == 1){
+                return coefficients[0][0];
+            }
+            else if (size == 2){
+                return coefficients[0][0] * coefficients[1][1] - coefficients[0][1] * coefficients[1][0];
+            }
+            else{
+                double det = 0;
+                for (int i = 0; i < size; i++){
+                    Matrix temp(size - 1);
+                    for (int j = 0; j < size - 1; j++){
+                        for (int k = 0; k < size - 1; k++){
+                            if (k < i){
+                                temp.coefficients[j][k] = coefficients[j+1][k];
+                            }
+                            else{
+                                temp.coefficients[j][k] = coefficients[j+1][k+1];
+                            }
+                        }
+                    det += std::pow(-1, i) * coefficients[0][i] * temp.determinant();
+                    }
+                }
+                return det;
+            }
         }
 };
 
@@ -67,15 +103,7 @@ Matrix operator*(Matrix m1, Matrix m2){
     return m3;
 }
 
-int main(void){
-    Matrix identite(3), bra(3);
-    identite.setAllValues();
-    identite.display();
-    std::cout << "\n";
-    bra.setAllValues();
-    bra.display();
-    std::cout << "\n";
-    std::cout << "no pb\n";
-    bra *= identite;
-    bra.display();
+Matrix operator*(double lambda, Matrix m){
+    m *= lambda;
+    return m;
 }
