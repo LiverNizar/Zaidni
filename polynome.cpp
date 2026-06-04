@@ -74,7 +74,7 @@ class Polynome{
         }
         template <typename U>
         friend Polynome<T> operator*(U lambda, Polynome<T> p){
-            Polynome p_new(p.degre + 1);
+            Polynome p_new(p.degre);
             if (lambda == U{}){
                 p_new.degre = 0;
                 p_new._extendToZeros(1);
@@ -87,7 +87,21 @@ class Polynome{
             }
             return p_new;
         }
-
+        template <typename U>
+        friend Polynome<T> operator*(Polynome<T> p, U lambda){
+            Polynome p_new(p.degre);
+            if (lambda == U{}){
+                p_new.degre = 0;
+                p_new._extendToZeros(1);
+                p_new.coefficient[0] = U{};
+            }
+            else{
+                for (int i = 0; i <= p.degre; i++){
+                    p_new.coefficient[i] = p.coefficient[i] * lambda;
+                }
+            }
+            return p_new;
+         }
         // casting from a type to a polynome;
 
 };
