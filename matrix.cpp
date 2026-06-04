@@ -2,21 +2,19 @@
 #include <vector>
 #include <cmath>
 
-class Matrix;
-Matrix operator*(Matrix m1, Matrix m2);
-
+template <typename T>
 class Matrix{
     private:
         int size;
-        std::vector<std::vector<double> > coefficients;
+        std::vector<std::vector<T> > coefficients;
 
     public:
-        Matrix(int n): size(n), coefficients(n, std::vector<double>(n, 0.0)) {}
+        Matrix(int n): size(n), coefficients(n, std::vector<T>(n, {})) {}
         int Size(){return size;}
-        void setValue(int row, int column, double value){
+        void setValue(int row, int column, T value){
             coefficients[row - 1][column - 1] = value;
         }
-        double getValue(int row, int column){
+        T getValue(int row, int column){
             return coefficients[row - 1][column - 1];
         }
         void display(){
@@ -35,6 +33,7 @@ class Matrix{
             }
             std::cout << "\n";
         }
+
         // operators
         void operator+=(Matrix m2){
             for (int i = 0; i < size; i++){
@@ -43,19 +42,43 @@ class Matrix{
                 }
             }
         }
-        Matrix& operator*=(const Matrix& m2) {
+        void operator*=(const Matrix m2) {
                 *this = *this * m2;
-                return *this;
         }
-        void operator*=(double lambda){
+        template <typename U>
+        void operator*=(U lambda){
             for (int i = 0; i < size; i++){
                 for (int j = 0; j < size; j++){
                     coefficients[i][j] *= lambda;
                 }
             }
         }
+        friend Matrix<T> operator+(Matrix<T> m1, Matrix<T> m2){
+            m1 += m2;
+            return m1;
+        }
+        friend Matrix<T> operator*(Matrix<T> m1, Matrix<T> m2){
+            Matrix m3(m1.Size());
+            T temp;
+            for (int i = 1; i <= m1.Size(); i++){
+                for (int j = 1; j <= m1.Size(); j++){
+                    temp = {};
+                    for (int k = 1; k <= m1.Size(); k++){
+                        temp += m1.getValue(i, k) * m2.getValue(k, j);
+                    }
+                    m3.setValue(i, j, temp);
+                }
+            }
+            return m3;
+        }
+        template <typename U>
+        friend Matrix<T> operator*(U lambda, Matrix<T> m){
+            m *= lambda;
+            return m;
+        }
+
         // Determinant
-        double determinant(){
+        T determinant(){
             if (size == 1){
                 return coefficients[0][0];
             }
@@ -63,7 +86,7 @@ class Matrix{
                 return coefficients[0][0] * coefficients[1][1] - coefficients[0][1] * coefficients[1][0];
             }
             else{
-                double det = 0;
+                T det = {};
                 for (int i = 0; i < size; i++){
                     Matrix temp(size - 1);
                     for (int j = 0; j < size - 1; j++){
@@ -82,28 +105,3 @@ class Matrix{
             }
         }
 };
-
-Matrix operator+(Matrix m1, Matrix m2){
-    m1 += m2;
-    return m1;
-}
-
-Matrix operator*(Matrix m1, Matrix m2){
-    Matrix m3(m1.Size());
-    double temp;
-    for (int i = 1; i <= m1.Size(); i++){
-        for (int j = 1; j <= m1.Size(); j++){
-            temp = 0;
-            for (int k = 1; k <= m1.Size(); k++){
-                temp += m1.getValue(i, k) * m2.getValue(k, j);
-            }
-            m3.setValue(i, j, temp);
-        }
-    }
-    return m3;
-}
-
-Matrix operator*(double lambda, Matrix m){
-    m *= lambda;
-    return m;
-}
